@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>本地图床</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <p class="eyebrow">Local Image Bed</p>
+        <h1>把图片拖进来，就能拿到直链</h1>
+        <p class="subtitle">
+          这是一个轻量自托管图床，适合博客、笔记、文档和开发调试使用。
+        </p>
+      </section>
+
+      <section class="panel uploader-panel">
+        <label class="dropzone" id="dropzone">
+          <input id="fileInput" type="file" name="image" accept="image/*" hidden />
+          <span class="dropzone-title">点击选择图片，或直接拖拽到这里</span>
+          <span class="dropzone-note">支持 PNG / JPG / WEBP / GIF / SVG，单张不超过 10MB</span>
+        </label>
+        <div class="actions">
+          <button id="pickButton" class="button primary" type="button">选择图片</button>
+          <button id="refreshButton" class="button secondary" type="button">刷新列表</button>
+        </div>
+        <p class="status" id="statusText">准备就绪</p>
+      </section>
+
+      <section class="panel">
+        <div class="gallery-header">
+          <div>
+            <h2>已上传图片</h2>
+            <p class="gallery-hint">每张图都能一键复制直链、Markdown 或 HTML。</p>
+          </div>
+          <span id="countBadge" class="count-badge">0 张</span>
+        </div>
+        <div id="gallery" class="gallery empty">
+          <p class="empty-state">还没有图片，先上传一张试试。</p>
+        </div>
+      </section>
+    </main>
+
+    <template id="cardTemplate">
+      <article class="card">
+        <img class="preview" alt="" />
+        <div class="card-body">
+          <div class="meta">
+            <strong class="name"></strong>
+            <span class="size"></span>
+          </div>
+          <div class="links">
+            <input class="link-input" readonly />
+          </div>
+          <div class="card-actions">
+            <button class="button small copy-url" type="button">复制直链</button>
+            <button class="button small copy-md" type="button">复制 Markdown</button>
+            <button class="button small copy-html" type="button">复制 HTML</button>
+            <button class="button small danger remove" type="button">删除</button>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <script src="/app.js" defer></script>
+  </body>
+  </html>
