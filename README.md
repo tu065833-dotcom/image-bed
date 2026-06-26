@@ -49,6 +49,8 @@ npm start
 
 ## API 接口
 
+> **示例 URL** 默认使用线上部署域名 `https://image-bed.onrender.com`，如需在本地调试请替换为 `http://localhost:3000`。
+
 ### 1. 健康检查
 
 ```http
@@ -82,22 +84,22 @@ GET /api/health
 `curl` 示例：
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/upload \
+curl -X POST https://image-bed.onrender.com/api/v1/upload \
   -F "image=@demo.png"
 ```
 
 开启鉴权后的示例：
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/upload \
+curl -X POST https://image-bed.onrender.com/api/v1/upload \
   -H "Authorization: Bearer demo-key" \
   -F "image=@demo.png"
 ```
 
-公网域名示例：
+公网域名示例（Render 部署）：
 
 ```bash
-curl -X POST https://jenae-artier-virgilio.ngrok-free.dev/api/v1/upload \
+curl -X POST https://image-bed.onrender.com/api/v1/upload \
   -H "Authorization: Bearer demo-key" \
   -F "image=@demo.png"
 ```
@@ -111,9 +113,9 @@ curl -X POST https://jenae-artier-virgilio.ngrok-free.dev/api/v1/upload \
     "fileName": "1781749221249-fb956b4a-demo.png",
     "size": 68,
     "uploadedAt": "2026-06-18T02:20:21.300Z",
-    "url": "http://localhost:3000/uploads/1781749221249-fb956b4a-demo.png",
-    "markdown": "![1781749221249-fb956b4a-demo.png](http://localhost:3000/uploads/1781749221249-fb956b4a-demo.png)",
-    "html": "<img src=\"http://localhost:3000/uploads/1781749221249-fb956b4a-demo.png\" alt=\"1781749221249-fb956b4a-demo.png\" />"
+    "url": "https://image-bed.onrender.com/uploads/1781749221249-fb956b4a-demo.png",
+    "markdown": "![1781749221249-fb956b4a-demo.png](https://image-bed.onrender.com/uploads/1781749221249-fb956b4a-demo.png)",
+    "html": "<img src=\"https://image-bed.onrender.com/uploads/1781749221249-fb956b4a-demo.png\" alt=\"1781749221249-fb956b4a-demo.png\" />"
   }
 }
 ```
@@ -126,7 +128,7 @@ curl -X POST https://jenae-artier-virgilio.ngrok-free.dev/api/v1/upload \
 - `GET /api/v1/images`
 
 ```bash
-curl http://localhost:3000/api/v1/images
+curl https://image-bed.onrender.com/api/v1/images
 ```
 
 ### 4. 删除图片
@@ -137,7 +139,7 @@ curl http://localhost:3000/api/v1/images
 - `DELETE /api/v1/images/:fileName`
 
 ```bash
-curl -X DELETE http://localhost:3000/api/v1/images/your-file-name.png
+curl -X DELETE https://image-bed.onrender.com/api/v1/images/your-file-name.png
 ```
 
 ## 目录结构
