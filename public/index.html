@@ -25,6 +25,7 @@
         <div class="actions">
           <button id="pickButton" class="button primary" type="button">选择图片</button>
           <button id="refreshButton" class="button secondary" type="button">刷新列表</button>
+          <button id="docsButton" class="button secondary" type="button">接口文档</button>
         </div>
         <p class="status" id="statusText">准备就绪</p>
       </section>
@@ -42,6 +43,20 @@
         </div>
       </section>
     </main>
+
+    <!-- 接口文档模态框 -->
+    <div id="docsModal" class="docs-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="docsModalTitle">
+      <div class="docs-modal-backdrop" data-docs-close></div>
+      <div class="docs-modal-panel" role="document">
+        <header class="docs-modal-header">
+          <h2 id="docsModalTitle">接口文档</h2>
+          <button class="docs-modal-close" type="button" aria-label="关闭" data-docs-close>×</button>
+        </header>
+        <div id="docsContent" class="docs-modal-body markdown-body">
+          <p class="docs-loading">正在加载接口文档...</p>
+        </div>
+      </div>
+    </div>
 
     <template id="cardTemplate">
       <article class="card">
