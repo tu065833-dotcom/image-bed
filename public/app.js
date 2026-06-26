@@ -15,7 +15,14 @@ const DOCS_REPO_OWNER = "tu065833-dotcom";
 const DOCS_REPO_NAME = "image-bed";
 const DOCS_BRANCH = "main";
 const DOCS_URL = `https://raw.githubusercontent.com/${DOCS_REPO_OWNER}/${DOCS_REPO_NAME}/${DOCS_BRANCH}/README.md`;
-const FALLBACK_DOCS_MD = getFallbackDocsMarkdown();
+// 运行时自动检测当前部署域名（避免硬编码 localhost）
+function getCurrentBaseUrl() {
+  // 优先使用环境变量（如有），否则用当前页面的 origin
+  if (typeof window !== "undefined" && window.location && window.location.origin) {
+    return window.location.origin.replace(/\/+$/, "");
+  }
+  return "http://localhost:3000";
+}
 let docsLoaded = false;
 
 function setStatus(message, isError = false) {
@@ -306,7 +313,7 @@ function renderMarkdown(md) {
   return out.join("\n");
 }
 
-function getFallbackDocsMarkdown() {
+function getFallbackDocsMarkdown(baseUrl) {
   // 离线兜底：保证 fetch 失败时也有文档可看
   return `# 本地图床 · 接口文档
 
@@ -345,14 +352,14 @@ GET /api/health
 \`curl\` 示例：
 
 \`\`\`bash
-curl -X POST http://localhost:3000/api/v1/upload \\
+curl -X POST ${baseUrl}/api/v1/upload \\
   -F "image=@demo.png"
 \`\`\`
 
 开启鉴权后的示例：
 
 \`\`\`bash
-curl -X POST http://localhost:3000/api/v1/upload \\
+curl -X POST ${baseUrl}/api/v1/upload \\
   -H "Authorization: Bearer demo-key" \\
   -F "image=@demo.png"
 \`\`\`
@@ -366,9 +373,9 @@ curl -X POST http://localhost:3000/api/v1/upload \\
     "fileName": "1781749221249-fb956b4a-demo.png",
     "size": 68,
     "uploadedAt": "2026-06-18T02:20:21.300Z",
-    "url": "http://localhost:3000/uploads/1781749221249-fb956b4a-demo.png",
-    "markdown": "![demo.png](http://localhost:3000/uploads/1781749221249-fb956b4a-demo.png)",
-    "html": "<img src=\\"http://localhost:3000/uploads/1781749221249-fb956b4a-demo.png\\" alt=\\"demo.png\\" />"
+    "url": "${baseUrl}/uploads/1781749221249-fb956b4a-demo.png",
+    "markdown": "![demo.png](${baseUrl}/uploads/1781749221249-fb956b4a-demo.png)",
+    "html": "<img src=\\"${baseUrl}/uploads/1781749221249-fb956b4a-demo.png\\" alt=\\"demo.png\\" />"
   }
 }
 \`\`\`
@@ -381,7 +388,7 @@ curl -X POST http://localhost:3000/api/v1/upload \\
 - \`GET /api/v1/images\`
 
 \`\`\`bash
-curl http://localhost:3000/api/v1/images
+curl ${baseUrl}/api/v1/images
 \`\`\`
 
 返回示例：
@@ -394,9 +401,9 @@ curl http://localhost:3000/api/v1/images
       "fileName": "demo.png",
       "size": 68,
       "uploadedAt": "2026-06-18T02:20:21.300Z",
-      "url": "http://localhost:3000/uploads/demo.png",
-      "markdown": "![demo.png](http://localhost:3000/uploads/demo.png)",
-      "html": "<img src=\\"http://localhost:3000/uploads/demo.png\\" alt=\\"demo.png\\" />"
+      "url": "${baseUrl}/uploads/demo.png",
+      "markdown": "![demo.png](${baseUrl}/uploads/demo.png)",
+      "html": "<img src=\\"${baseUrl}/uploads/demo.png\\" alt=\\"demo.png\\" />"
     }
   ]
 }
@@ -410,7 +417,7 @@ curl http://localhost:3000/api/v1/images
 - \`DELETE /api/v1/images/:fileName\`
 
 \`\`\`bash
-curl -X DELETE http://localhost:3000/api/v1/images/your-file-name.png
+curl -X DELETE ${baseUrl}/api/v1/images/your-file-name.png
 \`\`\`
 
 ## 5. 鉴权（可选）
@@ -444,22 +451,37 @@ async function loadDocsMarkdown() {
   if (docsLoaded) {
     return;
   }
+  const baseUrl = getCurrentBaseUrl();
   docsContent.innerHTML = '<p class="docs-loading">正在加载接口文档...</p>';
   try {
     const response = await fetch(DOCS_URL, { cache: "no-store" });
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
-    const md = await response.text();
+    let md = await response.text();
+    // 把 README 中可能存在的 localhost 示例 URL 替换为当前部署域名
+    md = replaceDocsBaseUrl(md, baseUrl);
     docsContent.innerHTML = renderMarkdown(md);
     docsLoaded = true;
   } catch (error) {
     // 拉取失败时使用本地兜底内容
+    const fallback = replaceDocsBaseUrl(getFallbackDocsMarkdown(baseUrl), baseUrl);
     docsContent.innerHTML =
       `<p class="status error">无法从 GitHub 拉取最新文档（${error instanceof Error ? error.message : "未知错误"}），已显示本地缓存版本。</p>` +
-      renderMarkdown(FALLBACK_DOCS_MD);
+      renderMarkdown(fallback);
     docsLoaded = true;
   }
+}
+
+// 把文档中所有形如 http://localhost:3000 或 https://localhost:3000 的 URL
+// 统一替换为当前部署域名，避免硬编码
+function replaceDocsBaseUrl(md, baseUrl) {
+  if (!baseUrl) return md;
+  // 匹配 http(s)://localhost(:port)?
+  const escaped = baseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return md
+    .replace(/https?:\/\/localhost(:\d+)?/g, baseUrl)
+    .replace(new RegExp(escaped, "g"), baseUrl);
 }
 
 function openDocsModal() {
